@@ -491,14 +491,14 @@ function bmhBodyRules($body, /** @noinspection PhpUnusedParameterInspection */ $
    * sample:
    *   550 .* (in reply to end of DATA command)
    */
-    elseif (\preg_match('/550.*in reply to end of DATA command/i', $body, $match)) {
+    elseif (\preg_match('/550.*in reply to end of DATA command/is', $body, $match)) {
         $result['rule_cat'] = 'unknown';
         $result['rule_no'] = '0047';
     } /* rule: unknown
    * sample:
    *   550 .* (in reply to RCPT TO command)
    */
-    elseif (\preg_match('/550.*in reply to RCPT TO command/i', $body, $match)) {
+    elseif (\preg_match('/550.*in reply to RCPT TO command/is', $body, $match)) {
         $result['rule_cat'] = 'unknown';
         $result['rule_no'] = '0048';
     } /* rule: dns_unknown
