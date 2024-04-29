@@ -321,56 +321,56 @@ class BounceMailHandler
         $delDate = \mktime(0, 0, 0, (int) ($dateArr[1]), (int) ($dateArr[2]), (int) ($dateArr[0]));
 
         $port = $this->port . '/' . $this->service . '/' . $this->serviceOption;
-        $mboxt = \imap_open('{' . $this->mailhost . ':' . $port . '}', $this->mailboxUserName, $this->mailboxPassword, OP_HALFOPEN);
+        $mboxt = \imap2_open('{' . $this->mailhost . ':' . $port . '}', $this->mailboxUserName, $this->mailboxPassword, OP_HALFOPEN && OP_XOAUTH2);
 
         if ($mboxt === false) {
             return false;
         }
 
-        $list = \imap_getmailboxes($mboxt, '{' . $this->mailhost . ':' . $port . '}', '*');
+        $list = \imap2_getmailboxes($mboxt, '{' . $this->mailhost . ':' . $port . '}', '*');
 
         if (\is_array($list)) {
             foreach ($list as $key => $val) {
                 // get the mailbox name only
-                $nameArr = \explode('}', \imap_utf7_decode($val->name));
+                $nameArr = \explode('}', \imap2_utf7_decode($val->name));
                 $nameRaw = $nameArr[\count($nameArr) - 1];
 
                 if (\stripos($nameRaw, 'sent') === false) {
-                    $mboxd = \imap_open('{' . $this->mailhost . ':' . $port . '}' . $nameRaw, $this->mailboxUserName, $this->mailboxPassword, CL_EXPUNGE);
-                    $messages = \imap_sort($mboxd, SORTDATE, 0);
+                    $mboxd = \imap2_open('{' . $this->mailhost . ':' . $port . '}' . $nameRaw, $this->mailboxUserName, $this->mailboxPassword, CL_EXPUNGE && OP_XOAUTH2);
+                    $messages = \imap2_sort($mboxd, SORTDATE, 0);
 
                     foreach ($messages as $message) {
-                        $header = \imap_headerinfo($mboxd, $message);
+                        $header = \imap2_headerinfo($mboxd, $message);
 
                         // purge if prior to global delete date
                         if ($header->udate < $delDate) {
-                            \imap_delete($mboxd, $message);
+                            \imap2_delete($mboxd, $message);
                         }
                     }
 
-                    \imap_expunge($mboxd);
+                    \imap2_expunge($mboxd);
                     /** @noinspection UnusedFunctionResultInspection */
-                    \imap_errors();
+                    \imap2_errors();
                     /** @noinspection UnusedFunctionResultInspection */
-                    \imap_alerts();
-                    \imap_close($mboxd);
+                    \imap2_alerts();
+                    \imap2_close($mboxd);
                 }
             }
 
             /** @noinspection UnusedFunctionResultInspection */
-            \imap_errors();
+            \imap2_errors();
             /** @noinspection UnusedFunctionResultInspection */
-            \imap_alerts();
-            \imap_close($mboxt);
+            \imap2_alerts();
+            \imap2_close($mboxt);
 
             return true;
         }
 
         /** @noinspection UnusedFunctionResultInspection */
-        \imap_errors();
+        \imap2_errors();
         /** @noinspection UnusedFunctionResultInspection */
-        \imap_alerts();
-        \imap_close($mboxt);
+        \imap2_alerts();
+        \imap2_close($mboxt);
 
         return false;
     }
@@ -418,19 +418,19 @@ class BounceMailHandler
 
         $port = $this->port . '/' . $this->service . '/' . $this->serviceOption;
         /** @noinspection PhpUsageOfSilenceOperatorInspection */
-        $mbox = @\imap_open('{' . $this->mailhost . ':' . $port . '}', $this->mailboxUserName, $this->mailboxPassword, OP_HALFOPEN);
+        $mbox = @\imap2_open('{' . $this->mailhost . ':' . $port . '}', $this->mailboxUserName, $this->mailboxPassword, OP_HALFOPEN && OP_XOAUTH2);
 
         if ($mbox === false) {
             return false;
         }
 
-        $list = \imap_getmailboxes($mbox, '{' . $this->mailhost . ':' . $port . '}', '*');
+        $list = \imap2_getmailboxes($mbox, '{' . $this->mailhost . ':' . $port . '}', '*');
         $mailboxFound = false;
 
         if (\is_array($list)) {
             foreach ($list as $key => $val) {
                 // get the mailbox name only
-                $nameArr = \explode('}', \imap_utf7_decode($val->name));
+                $nameArr = \explode('}', \imap2_utf7_decode($val->name));
                 $nameRaw = $nameArr[\count($nameArr) - 1];
                 if ($mailbox == $nameRaw) {
                     $mailboxFound = true;
@@ -439,30 +439,30 @@ class BounceMailHandler
 
             if ($mailboxFound === false && $create) {
                 /** @noinspection PhpUsageOfSilenceOperatorInspection */
-                @\imap_createmailbox($mbox, \imap_utf7_encode('{' . $this->mailhost . ':' . $port . '}' . $mailbox));
+                @\imap2_createmailbox($mbox, \imap2_utf7_encode('{' . $this->mailhost . ':' . $port . '}' . $mailbox));
                 /** @noinspection UnusedFunctionResultInspection */
-                \imap_errors();
+                \imap2_errors();
                 /** @noinspection UnusedFunctionResultInspection */
-                \imap_alerts();
-                \imap_close($mbox);
+                \imap2_alerts();
+                \imap2_close($mbox);
 
                 return true;
             }
 
             /** @noinspection UnusedFunctionResultInspection */
-            \imap_errors();
+            \imap2_errors();
             /** @noinspection UnusedFunctionResultInspection */
-            \imap_alerts();
-            \imap_close($mbox);
+            \imap2_alerts();
+            \imap2_close($mbox);
 
             return false;
         }
 
         /** @noinspection UnusedFunctionResultInspection */
-        \imap_errors();
+        \imap2_errors();
         /** @noinspection UnusedFunctionResultInspection */
-        \imap_alerts();
-        \imap_close($mbox);
+        \imap2_alerts();
+        \imap2_close($mbox);
 
         return false;
     }
@@ -479,13 +479,13 @@ class BounceMailHandler
         \set_time_limit(self::SECONDS_TIMEOUT);
 
         if (!$this->testMode) {
-            $this->mailboxLink = \imap_open($filePath, '', '', CL_EXPUNGE);
+            $this->mailboxLink = \imap2_open($filePath, '', '', CL_EXPUNGE && OP_XOAUTH2);
         } else {
-            $this->mailboxLink = \imap_open($filePath, '', '', OP_READONLY);
+            $this->mailboxLink = \imap2_open($filePath, '', '', OP_READONLY && OP_XOAUTH2);
         }
 
         if (!$this->mailboxLink) {
-            $this->errorMessage = 'Cannot open the mailbox file to ' . $filePath . $this->bmhNewLine . 'Error MSG: ' . \imap_last_error();
+            $this->errorMessage = 'Cannot open the mailbox file to ' . $filePath . $this->bmhNewLine . 'Error MSG: ' . \imap2_last_error();
             $this->output();
 
             return false;
@@ -520,13 +520,13 @@ class BounceMailHandler
         \set_time_limit(self::SECONDS_TIMEOUT);
 
         if (!$this->testMode) {
-            $this->mailboxLink = \imap_open('{' . $this->mailhost . ':' . $port . '}' . $this->boxname, $this->mailboxUserName, $this->mailboxPassword, CL_EXPUNGE);
+            $this->mailboxLink = \imap2_open('{' . $this->mailhost . ':' . $port . '}' . $this->boxname, $this->mailboxUserName, $this->mailboxPassword, CL_EXPUNGE && OP_XOAUTH2);
         } else {
-            $this->mailboxLink = \imap_open('{' . $this->mailhost . ':' . $port . '}' . $this->boxname, $this->mailboxUserName, $this->mailboxPassword, OP_READONLY);
+            $this->mailboxLink = \imap2_open('{' . $this->mailhost . ':' . $port . '}' . $this->boxname, $this->mailboxUserName, $this->mailboxPassword, OP_READONLY && OP_XOAUTH2);
         }
 
         if (!$this->mailboxLink) {
-            $this->errorMessage = 'Cannot create ' . $this->service . ' connection to ' . $this->mailhost . $this->bmhNewLine . 'Error MSG: ' . \imap_last_error();
+            $this->errorMessage = 'Cannot create ' . $this->service . ' connection to ' . $this->mailhost . $this->bmhNewLine . 'Error MSG: ' . \imap2_last_error();
             $this->output();
 
             return false;
@@ -565,16 +565,16 @@ class BounceMailHandler
      */
     public function processBounce(int $pos, string $type, int $totalFetched)
     {
-        $header = \imap_headerinfo($this->mailboxLink, $pos);
+        $header = \imap2_headerinfo($this->mailboxLink, $pos);
         $subject = isset($header->subject) ? \strip_tags($header->subject) : '[NO SUBJECT]';
         $body = '';
-        $headerFull = \imap_fetchheader($this->mailboxLink, $pos);
-        $bodyFull = \imap_body($this->mailboxLink, $pos);
+        $headerFull = \imap2_fetchheader($this->mailboxLink, $pos);
+        $bodyFull = \imap2_body($this->mailboxLink, $pos);
 
         if ($type == 'DSN') {
             // first part of DSN (Delivery Status Notification), human-readable explanation
-            $dsnMsg = \imap_fetchbody($this->mailboxLink, $pos, '1');
-            $dsnMsgStructure = \imap_bodystruct($this->mailboxLink, $pos, '1');
+            $dsnMsg = \imap2_fetchbody($this->mailboxLink, $pos, '1');
+            $dsnMsgStructure = \imap2_bodystruct($this->mailboxLink, $pos, '1');
 
             if ($dsnMsgStructure->encoding == 4) {
                 $dsnMsg = \quoted_printable_decode($dsnMsg);
@@ -583,14 +583,14 @@ class BounceMailHandler
             }
 
             // second part of DSN (Delivery Status Notification), delivery-status
-            $dsnReport = \imap_fetchbody($this->mailboxLink, $pos, '2');
+            $dsnReport = \imap2_fetchbody($this->mailboxLink, $pos, '2');
 
             // process bounces by rules
             $result = bmhDSNRules($dsnMsg, $dsnReport, $this->debugDsnRule);
             $result = \is_callable($this->customDSNRulesCallback) ? \call_user_func($this->customDSNRulesCallback, $result, $dsnMsg, $dsnReport, $this->debugDsnRule) : $result;
         } elseif ($type == 'BODY') {
             /** @noinspection PhpUsageOfSilenceOperatorInspection */
-            $structure = @\imap_fetchstructure($this->mailboxLink, $pos);
+            $structure = @\imap2_fetchstructure($this->mailboxLink, $pos);
 
             if (!\is_object($structure)) {
                 return false;
@@ -598,14 +598,14 @@ class BounceMailHandler
 
             switch ($structure->type) {
                 case 0: // Content-type = text
-                    $body = \imap_fetchbody($this->mailboxLink, $pos, '1');
+                    $body = \imap2_fetchbody($this->mailboxLink, $pos, '1');
                     $result = bmhBodyRules($body, $structure, $this->debugBodyRule);
                     $result = \is_callable($this->customBodyRulesCallback) ? \call_user_func($this->customBodyRulesCallback, $result, $body, $structure, $this->debugBodyRule) : $result;
 
                     break;
 
                 case 1: // Content-type = multipart
-                    $body = \imap_fetchbody($this->mailboxLink, $pos, '1');
+                    $body = \imap2_fetchbody($this->mailboxLink, $pos, '1');
 
                     // Detect encoding and decode - only base64
                     if ($structure->parts[0]->encoding == 4) {
@@ -620,7 +620,7 @@ class BounceMailHandler
                     break;
 
                 case 2: // Content-type = message
-                    $body = \imap_body($this->mailboxLink, $pos);
+                    $body = \imap2_body($this->mailboxLink, $pos);
 
                     if ($structure->encoding == 4) {
                         $body = \quoted_printable_decode($body);
@@ -767,7 +767,7 @@ class BounceMailHandler
         }
 
         // initialize counters
-        $totalCount = \imap_num_msg($this->mailboxLink);
+        $totalCount = \imap2_num_msg($this->mailboxLink);
         $fetchedCount = $totalCount;
         $processedCount = 0;
         $unprocessedCount = 0;
@@ -800,7 +800,7 @@ class BounceMailHandler
             // fetch the messages one at a time
             if ($this->useFetchstructure) {
                 /** @noinspection PhpUsageOfSilenceOperatorInspection */
-                $structure = @\imap_fetchstructure($this->mailboxLink, $x);
+                $structure = @\imap2_fetchstructure($this->mailboxLink, $x);
 
                 if (
                     $structure
@@ -833,7 +833,7 @@ class BounceMailHandler
                     $processedResult = $this->processBounce($x, 'BODY', $totalCount);
                 }
             } else {
-                $header = \imap_fetchheader($this->mailboxLink, $x);
+                $header = \imap2_fetchheader($this->mailboxLink, $x);
 
                 // Could be multi-line, if the new line begins with SPACE or HTAB
                 if ($header && \preg_match("/Content-Type:((?:[^\n]|\n[\t ])+)(?:\n[^\t ]|$)/i", $header, $match)) {
@@ -876,7 +876,7 @@ class BounceMailHandler
                     // delete the bounce if not in disableDelete mode
                     if (!$this->testMode) {
                         /** @noinspection PhpUsageOfSilenceOperatorInspection */
-                        @\imap_delete($this->mailboxLink, (string)$x);
+                        @\imap2_delete($this->mailboxLink, (string)$x);
                     }
 
                     $deleteFlag[$x] = true;
@@ -890,7 +890,7 @@ class BounceMailHandler
                     // move the message
                     if (!$this->testMode) {
                         /** @noinspection PhpUsageOfSilenceOperatorInspection */
-                        @\imap_mail_move($this->mailboxLink, (string) $x, $this->hardMailbox);
+                        @\imap2_mail_move($this->mailboxLink, (string) $x, $this->hardMailbox);
                     }
 
                     $moveFlag[$x] = true;
@@ -904,7 +904,7 @@ class BounceMailHandler
                     // move the message
                     if (!$this->testMode) {
                         /** @noinspection PhpUsageOfSilenceOperatorInspection */
-                        @\imap_mail_move($this->mailboxLink, (string) $x, $this->softMailbox);
+                        @\imap2_mail_move($this->mailboxLink, (string) $x, $this->softMailbox);
                     }
 
                     $moveFlag[$x] = true;
@@ -917,7 +917,7 @@ class BounceMailHandler
                     // delete this bounce if not in disableDelete mode, and the flag BOUNCE_PURGE_UNPROCESSED is set
                     if (!$this->testMode) {
                         /** @noinspection PhpUsageOfSilenceOperatorInspection */
-                        @\imap_delete($this->mailboxLink, (string)$x);
+                        @\imap2_delete($this->mailboxLink, (string)$x);
                     }
 
                     $deleteFlag[$x] = true;
@@ -929,7 +929,7 @@ class BounceMailHandler
                     $this->mailboxExist($this->unprocessedBox);
                     // move the message
                     /** @noinspection PhpUsageOfSilenceOperatorInspection */
-                    @\imap_mail_move($this->mailboxLink, (string)$x, $this->unprocessedBox);
+                    @\imap2_mail_move($this->mailboxLink, (string)$x, $this->unprocessedBox);
                     $moveFlag[$x] = true;
                 }
             }
@@ -940,9 +940,9 @@ class BounceMailHandler
         $this->output($this->bmhNewLine . 'Closing mailbox, and purging messages');
 
         /** @noinspection PhpUsageOfSilenceOperatorInspection */
-        @\imap_expunge($this->mailboxLink);
+        @\imap2_expunge($this->mailboxLink);
         /** @noinspection PhpUsageOfSilenceOperatorInspection */
-        @\imap_close($this->mailboxLink);
+        @\imap2_close($this->mailboxLink);
 
         $this->output('Read: ' . $fetchedCount . ' messages');
         $this->output($processedCount . ' action taken');
