@@ -336,7 +336,7 @@ class BounceMailHandler
                 $nameRaw = $nameArr[\count($nameArr) - 1];
 
                 if (\stripos($nameRaw, 'sent') === false) {
-                    $mboxd = \imap2_open('{' . $this->mailhost . ':' . $port . '}' . $nameRaw, $this->mailboxUserName, $this->mailboxPassword, CL_EXPUNGE && OP_XOAUTH2);
+                    $mboxd = \imap2_open('{' . $this->mailhost . ':' . $port . '}' . $nameRaw, $this->mailboxUserName, $this->mailboxPassword, CL_EXPUNGE|OP_XOAUTH2);
                     $messages = \imap2_sort($mboxd, SORTDATE, 0);
 
                     foreach ($messages as $message) {
@@ -418,7 +418,7 @@ class BounceMailHandler
 
         $port = $this->port . '/' . $this->service . '/' . $this->serviceOption;
         /** @noinspection PhpUsageOfSilenceOperatorInspection */
-        $mbox = @\imap2_open('{' . $this->mailhost . ':' . $port . '}', $this->mailboxUserName, $this->mailboxPassword, OP_HALFOPEN && OP_XOAUTH2);
+        $mbox = @\imap2_open('{' . $this->mailhost . ':' . $port . '}', $this->mailboxUserName, $this->mailboxPassword, OP_HALFOPEN|OP_XOAUTH2);
 
         if ($mbox === false) {
             return false;
@@ -479,9 +479,9 @@ class BounceMailHandler
         \set_time_limit(self::SECONDS_TIMEOUT);
 
         if (!$this->testMode) {
-            $this->mailboxLink = \imap2_open($filePath, '', '', CL_EXPUNGE && OP_XOAUTH2);
+            $this->mailboxLink = \imap2_open($filePath, '', '', CL_EXPUNGE|OP_XOAUTH2);
         } else {
-            $this->mailboxLink = \imap2_open($filePath, '', '', OP_READONLY && OP_XOAUTH2);
+            $this->mailboxLink = \imap2_open($filePath, '', '', OP_READONLY|OP_XOAUTH2);
         }
 
         if (!$this->mailboxLink) {
@@ -520,9 +520,9 @@ class BounceMailHandler
         \set_time_limit(self::SECONDS_TIMEOUT);
 
         if (!$this->testMode) {
-            $this->mailboxLink = \imap2_open('{' . $this->mailhost . ':' . $port . '}' . $this->boxname, $this->mailboxUserName, $this->mailboxPassword, CL_EXPUNGE && OP_XOAUTH2);
+            $this->mailboxLink = \imap2_open('{' . $this->mailhost . ':' . $port . '}' . $this->boxname, $this->mailboxUserName, $this->mailboxPassword, CL_EXPUNGE|OP_XOAUTH2);
         } else {
-            $this->mailboxLink = \imap2_open('{' . $this->mailhost . ':' . $port . '}' . $this->boxname, $this->mailboxUserName, $this->mailboxPassword, OP_READONLY && OP_XOAUTH2);
+            $this->mailboxLink = \imap2_open('{' . $this->mailhost . ':' . $port . '}' . $this->boxname, $this->mailboxUserName, $this->mailboxPassword, OP_READONLY|OP_XOAUTH2);
         }
 
         if (!$this->mailboxLink) {
